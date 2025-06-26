@@ -13,6 +13,7 @@ type ChatSession = {
 };
 
 const Chatbot = () => {
+    console.log("Gemini API Key in production:", import.meta.env.VITE_GEMINI_API_KEY);
     const [isOpen, setIsOpen] = useState(false);
 
     const createNewSession = (): ChatSession => ({
