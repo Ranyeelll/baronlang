@@ -32,7 +32,7 @@ export function AuthProvider({
       throw new Error("Invalid email or password");
     }
   };
-  const signup = async (name: string, email: string, password: string) => {
+  const signup = async (name: string, email: string, _password: string) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     // Mock validation

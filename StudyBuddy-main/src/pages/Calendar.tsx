@@ -21,11 +21,20 @@ export const Calendar = () => {
     start: monthStart,
     end: monthEnd
   });
+  const firstDayOfWeek = monthStart.getDay();
+  const totalCells = Math.ceil((daysInMonth.length + firstDayOfWeek) / 7) * 7;
+  const calendarDays = [
+    ...Array(firstDayOfWeek).fill(null),
+    ...daysInMonth,
+    ...Array(totalCells - daysInMonth.length - firstDayOfWeek).fill(null),
+  ];
+
   const handleDateClick = (date: Date) => {
     if (isBefore(date, new Date()) && !isToday(date)) return;
     setSelectedDate(date);
     setIsModalOpen(true);
   };
+
   const handleSave = (data: {
     title: string;
     description: string;
@@ -46,6 +55,7 @@ export const Calendar = () => {
     }
     setIsModalOpen(false);
   };
+
   const handleDelete = () => {
     if (!selectedDate) return;
     const existingDay = getImportantDay(selectedDate);
@@ -54,44 +64,76 @@ export const Calendar = () => {
     }
     setIsModalOpen(false);
   };
-  return <div className="space-y-6">
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-medium text-gray-900">Calendar</h2>
-        <div className="flex items-center gap-4">
-          <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <span className="text-lg font-medium text-gray-900">
-            {format(currentDate, 'MMMM yyyy')}
-          </span>
-          <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-            <ChevronRight className="h-5 w-5" />
-          </button>
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-medium text-gray-900">Calendar</h2>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setCurrentDate(subMonths(currentDate, 1))}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <span className="text-lg font-medium text-gray-900">
+              {format(currentDate, 'MMMM yyyy')}
+            </span>
+            <button
+              onClick={() => setCurrentDate(addMonths(currentDate, 1))}
+              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden">
-        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => <div key={day} className="bg-gray-50 p-3 text-center text-sm font-medium text-gray-500">
-          {day}
-        </div>)}
-        {daysInMonth.map(day => {
-          const isCurrentMonth = isSameMonth(day, currentDate);
-          const isPast = isBefore(day, new Date()) && !isToday(day);
-          const hasEvent = getImportantDay(day);
-          return <button key={day.toISOString()} onClick={() => handleDateClick(day)} disabled={!isCurrentMonth || isPast} className={`
+        <div className="grid grid-cols-7 gap-px bg-gray-200 rounded-lg overflow-hidden">
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            <div key={day} className="bg-gray-50 p-3 text-center text-sm font-medium text-gray-500">
+              {day}
+            </div>
+          ))}
+          {calendarDays.map((day, idx) => {
+            if (!day) {
+              return <div key={idx} className="bg-gray-50" />;
+            }
+            const isCurrentMonth = isSameMonth(day, currentDate);
+            const isPast = isBefore(day, new Date()) && !isToday(day);
+            const hasEvent = getImportantDay(day);
+            return (
+              <button
+                key={day.toISOString()}
+                onClick={() => handleDateClick(day)}
+                disabled={!isCurrentMonth || isPast}
+                className={`
                   relative p-3 text-center transition-all hover:bg-blue-50
                   ${!isCurrentMonth ? 'bg-gray-50 text-gray-300' : 'bg-white'}
                   ${isPast ? 'text-gray-300 cursor-not-allowed' : 'text-gray-900'}
                   ${isToday(day) ? 'font-bold' : ''}
-                `}>
-            {format(day, 'd')}
-            {hasEvent && <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-500"></div>
-            </div>}
-          </button>;
-        })}
+                `}
+              >
+                {format(day, 'd')}
+                {hasEvent && (
+                  <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-blue-500"></div>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
+      {selectedDate && (
+        <CalendarModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          date={selectedDate}
+          existingData={getImportantDay(selectedDate)}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
-    {selectedDate && <CalendarModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} date={selectedDate} existingData={getImportantDay(selectedDate)} onSave={handleSave} onDelete={handleDelete} />}
-  </div>;
+  );
 };
