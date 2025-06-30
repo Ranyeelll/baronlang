@@ -32,10 +32,10 @@ A comprehensive study management application with task tracking, calendar events
    - Create a new API key
    - Create a `.env` file in the root directory with:
      ```
-     VITE_GEMINI_API_KEY=your_actual_api_key_here
+     VITE_GEMINI_API_KEY=AIzaSyDXAlc7cKr0zV1rPLNeUefRJUvFJdpxUM4
      ```
    
-   **Note**: Replace `your_actual_api_key_here` with your actual Gemini API key.
+   **Note**: Replace `AIzaSyDXAlc7cKr0zV1rPLNeUefRJUvFJdpxUM4` with your actual Gemini API key.
 
 4. **Start the development server**
    ```bash
